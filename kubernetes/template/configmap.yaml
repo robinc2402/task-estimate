@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+immutable: true
+metadata:
+  name: cockroachdb
+  namespace: devin-dashboard
+data:
+  PGHOST: cockroach.env.datastore-cph3.one.com
+  PGPORT: '26257'
+  PGAPPNAME: devin-dashboard
+  PGUSER: wpin_planning_poker_production_user
+  PGDATABASE: wpin_planning_poker_production
+
