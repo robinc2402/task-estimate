@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${APP_NAME}-ingress-${RELEASE_ENVIRONMENT}
+  namespace: $K8S_NAMESPACE
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.class: ${INGRESS_CLASS}
+    nginx.ingress.kubernetes.io/proxy-body-size: 20g
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+  labels:
+    app: ${APP_NAME}
+    environment: ${RELEASE_ENVIRONMENT}
+    version: ${RELEASE_VERSION}
+spec:
+  rules:
+    - host: $INGRESS_HOSTNAME
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: ${APP_NAME}-${RELEASE_ENVIRONMENT}
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - $INGRESS_HOSTNAME
+      secretName: ingress-tls-secret-${INGRESS_CLASS}-${RELEASE_ENVIRONMENT}
+

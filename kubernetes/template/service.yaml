@@ -1,0 +1,19 @@
+---
+# https://kubernetes.io/docs/concepts/services-networking/service/
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${APP_NAME}-${RELEASE_ENVIRONMENT}
+  namespace: $K8S_NAMESPACE
+  labels:
+    app: ${APP_NAME}
+    environment: ${RELEASE_ENVIRONMENT}
+    version: ${RELEASE_VERSION}
+spec:
+  selector:
+    app.kubernetes.io/name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+  ports:
+    - protocol: TCP
+      name: http
+      port: 80
+      targetPort: 3000

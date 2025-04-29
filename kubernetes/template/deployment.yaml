@@ -1,0 +1,68 @@
+---
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+  namespace: $K8S_NAMESPACE
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+    app.kubernetes.io/part-of: one.com-${APP_NAME}-app
+    app: ${APP_NAME}
+    environment: ${RELEASE_ENVIRONMENT}
+    version: ${RELEASE_VERSION}
+spec:
+  replicas: ${REPLICA_COUNT}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+        app.kubernetes.io/part-of: one.com-${APP_NAME}-app
+        app: ${APP_NAME}
+        environment: ${RELEASE_ENVIRONMENT}
+        version: ${RELEASE_VERSION}
+    spec:
+      initContainers:
+        - name: permissions
+          image: $IMAGE
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - "cp /etc/cr-root-owned/tls.* /etc/cockroachdb-certs; chmod 600 /etc/cockroachdb-certs/tls.*"
+          volumeMounts:
+            - mountPath: "/etc/cr-root-owned"
+              name: cockroachdb-certs
+            - mountPath: "/etc/cockroachdb-certs"
+              name: cockroach-credentials
+      containers:
+        - name: ${APP_NAME}-app-${RELEASE_ENVIRONMENT}
+          image: $IMAGE
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: NODE_ENV
+              value: ${RELEASE_ENVIRONMENT}
+          ports:
+            - containerPort: 3000
+              name: http
+          resources:
+            limits:
+              cpu: ${RESOURCES_LIMITS_CPU}
+              memory: ${RESOURCES_LIMITS_MEM}
+            requests:
+              cpu: ${RESOURCES_REQUESTS_CPU}
+              memory: ${RESOURCES_REQUESTS_MEM}
+          volumeMounts:
+            - mountPath: "/etc/cockroachdb-certs"
+              name: cockroach-credentials
+              readOnly: true
+      volumes:
+        - name: cockroachdb-certs
+          secret:
+            secretName: cockroachdb
+        - name: cockroach-credentials
+          emptyDir: {}
+
