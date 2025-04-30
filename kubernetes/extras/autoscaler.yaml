@@ -1,0 +1,16 @@
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${APP_NAME}-${RELEASE_ENVIRONMENT}
+  namespace: $K8S_NAMESPACE
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${APP_NAME}-backend-${RELEASE_ENVIRONMENT}
+  minReplicas: $REPLICA_COUNT
+  maxReplicas: $AUTOSCALER_MAX_REPLICAS
+  targetCPUUtilizationPercentage: 50
+# https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+# https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
