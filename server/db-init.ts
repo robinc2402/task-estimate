@@ -6,18 +6,18 @@ import { sql } from "drizzle-orm";
 // Initialize the database
 async function main() {
   console.log("Initializing database...");
-  
+
   try {
     // Push schema to database (create tables if they don't exist)
     console.log("Migrating schema...");
     await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-    
+
     // Create seed users if they don't exist
     const existingUsers = await db.select().from(users);
-    
+
     if (existingUsers.length === 0) {
       console.log("Seeding users...");
-      
+
       await db.insert(users).values([
         {
           username: "jsmith",
@@ -36,13 +36,13 @@ async function main() {
         }
       ]);
     }
-    
+
     // Create seed tasks if they don't exist
     const existingTasks = await db.select().from(tasks);
-    
+
     if (existingTasks.length === 0) {
       console.log("Seeding tasks...");
-      
+
       await db.insert(tasks).values([
         {
           title: "Implement OAuth integration",
@@ -134,7 +134,7 @@ async function main() {
         }
       ]);
     }
-    
+
     console.log("Database initialization complete");
   } catch (error) {
     console.error("Error initializing database:", error);
