@@ -10,7 +10,7 @@ async function main() {
   try {
     // Push schema to database (create tables if they don't exist)
     console.log("Migrating schema...");
-    await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    // await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
 
     // Create seed users if they don't exist
     const existingUsers = await db.select().from(users);
