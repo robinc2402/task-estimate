@@ -4,6 +4,23 @@
 
 ## Getting started
 
+## .env files
+Create a .env.{NODE_ENV} file. e.g.
+* .env.development
+* .env.staging
+* .env.production
+
+Add following details
+```env 
+DB_HOST
+DB_PORT
+DB_NAME
+DB_USER
+DB_CERT
+DB_KEY
+DB_CA
+```
+
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
 Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!

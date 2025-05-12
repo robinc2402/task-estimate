@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config({path: `.env.${process.env.NODE_ENV}`});
 import pg from 'pg';
 import {drizzle} from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
@@ -18,7 +20,7 @@ let connectionConfig;
 // Code ready for CockroachDB when needed:
 // First priority: use CockroachDB if available
 // Todo: move this to secrets file later
-process.env.COCKROACHDB_URL = "postgresql://wordpress@localhost:26257/defaultdb?sslcert=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/client.wordpress.crt&sslkey=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/client.wordpress.key&sslmode=verify-full&sslrootcert=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/ca.crt";
+process.env.COCKROACHDB_URL = `postgresql://${process.env.DB_USER}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslcert=${process.env.DB_CERT}&sslkey=${process.env.DB_KEY}&sslmode=verify-full&sslrootcert=${process.env.DB_CA}`;
 if (process.env.COCKROACHDB_URL) {
     console.log("Using CockroachDB connection");
     connectionConfig = {
