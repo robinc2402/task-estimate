@@ -13,8 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 export default function CollaborativeEstimation() {
   const { toast } = useToast();
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [userName, setUserName] = useState("John Smith"); // In a real app, this would come from authentication
-  const [userId, setUserId] = useState("1"); // In a real app, this would come from authentication
+  const [userName, setUserName] = useState("Ankit Tiwari"); // In a real app, this would come from authentication
+  const [userId, setUserId] = useState("0202fbdb-dd63-45ed-8976-e4295db5dfa7"); // In a real app, this would come from authentication
 
   interface SessionType {
     id: number;

@@ -12,7 +12,7 @@ interface TeamMember {
 export default function TeamMembers() {
   const teamMembers: TeamMember[] = [
     {
-      id: "1",
+      id: "0202fbdb-dd63-45ed-8976-e4295db5dfa7",
       initials: "AL",
       name: "Alex Lee",
       role: "Senior Developer",
@@ -20,29 +20,13 @@ export default function TeamMembers() {
       color: "bg-primary-100 text-primary-800",
     },
     {
-      id: "2",
+      id: "0202fbdb-dd63-45ed-8976-e4295db5dfa7",
       initials: "SK",
       name: "Sarah Kim",
       role: "Product Owner",
       status: "offline",
       color: "bg-secondary-100 text-secondary-800",
-    },
-    {
-      id: "3",
-      initials: "JD",
-      name: "John Doe",
-      role: "Scrum Master",
-      status: "online",
-      color: "bg-accent-100 text-accent-800",
-    },
-    {
-      id: "4",
-      initials: "MP",
-      name: "Maria Perez",
-      role: "QA Engineer",
-      status: "offline",
-      color: "bg-primary-100 text-primary-800",
-    },
+    }
   ];
 
   return (

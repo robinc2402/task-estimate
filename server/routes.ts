@@ -339,7 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const vote: TaskVote = taskVoteSchema.parse({
-        taskId: parseInt(id),
+        taskId: id,
         userId: req.body.userId,
         userName: req.body.userName,
         size: req.body.size
