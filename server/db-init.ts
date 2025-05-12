@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db, pool } from "./db";
 import { users, tasks, sessions, TShirtSize, pointsMapping } from "@shared/schema";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { sql } from "drizzle-orm";
@@ -6,18 +6,35 @@ import { sql } from "drizzle-orm";
 // Initialize the database
 async function main() {
   console.log("Initializing database...");
-
+  
   try {
+    // Test the database connection first
+    console.log("Testing database connection...");
+    const client = await pool.connect();
+    console.log("Successfully connected to database");
+    
+    // Get database information
+    const dbInfoResult = await client.query('SELECT current_database(), version()');
+    console.log(`Database: ${dbInfoResult.rows[0].current_database}, Version: ${dbInfoResult.rows[0].version}`);
+    client.release();
+    
     // Push schema to database (create tables if they don't exist)
     console.log("Migrating schema...");
-    // await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
-
+    
+    try {
+      await db.execute(sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    } catch (err) {
+      const error = err as Error;
+      console.warn("Note: Could not create uuid-ossp extension. This might be expected for CockroachDB:", error.message);
+      // Continue anyway, as this might not be critical
+    }
+    
     // Create seed users if they don't exist
     const existingUsers = await db.select().from(users);
-
+    
     if (existingUsers.length === 0) {
       console.log("Seeding users...");
-
+      
       await db.insert(users).values([
         {
           username: "jsmith",
@@ -36,13 +53,13 @@ async function main() {
         }
       ]);
     }
-
+    
     // Create seed tasks if they don't exist
     const existingTasks = await db.select().from(tasks);
-
+    
     if (existingTasks.length === 0) {
       console.log("Seeding tasks...");
-
+      
       await db.insert(tasks).values([
         {
           title: "Implement OAuth integration",
@@ -134,10 +151,11 @@ async function main() {
         }
       ]);
     }
-
+    
     console.log("Database initialization complete");
-  } catch (error) {
-    console.error("Error initializing database:", error);
+  } catch (err) {
+    const error = err as Error;
+    console.error("Error initializing database:", error.message, error.stack);
   }
 }
 
