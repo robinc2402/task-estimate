@@ -9,6 +9,6 @@ export default defineConfig({
     schema: "./shared/schema.ts",
     dialect: "postgresql",
     dbCredentials: {
-        url: "postgresql://wordpress@localhost:26257/defaultdb?sslcert=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/client.wordpress.crt&sslkey=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/client.wordpress.key&sslmode=verify-full&sslrootcert=/Users/ankitt/Documents/work/cockroach-db-certificates/certs/ca.crt",
+        url: `postgresql://${process.env.DB_USER}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslcert=${process.env.DB_CERT}&sslkey=${process.env.DB_KEY}&sslmode=verify-full&sslrootcert=${process.env.DB_CA}`,
     },
 });

@@ -77,7 +77,7 @@ export const taskVoteSchema = z.object({
 
 // Task finalize schema
 export const taskFinalizeSchema = z.object({
-    taskId: z.number(),
+    taskId: z.string().uuid(),
     finalSize: z.enum([TShirtSize.XS, TShirtSize.S, TShirtSize.M, TShirtSize.L, TShirtSize.XL, TShirtSize.XXL]),
 });
 
