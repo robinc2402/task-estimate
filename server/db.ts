@@ -20,7 +20,7 @@ let connectionConfig;
 // Code ready for CockroachDB when needed:
 // First priority: use CockroachDB if available
 // Todo: move this to secrets file later
-process.env.COCKROACHDB_URL = `postgresql://${process.env.DB_USER}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslcert=${process.env.DB_CERT}&sslkey=${process.env.DB_KEY}&sslmode=verify-full&sslrootcert=${process.env.DB_CA}`;
+process.env.COCKROACHDB_URL = `postgresql://root@localhost:26257/defaultdb?sslcert=%2FUsers%2Frobinc%2F.cockroach-certs%2Fclient.root.crt&sslkey=%2FUsers%2Frobinc%2F.cockroach-certs%2Fclient.root.key&sslmode=verify-full&sslrootcert=%2FUsers%2Frobinc%2F.cockroach-certs%2Fca.crt`;
 if (process.env.COCKROACHDB_URL) {
     console.log("Using CockroachDB connection");
     connectionConfig = {
