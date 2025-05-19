@@ -25,19 +25,6 @@ spec:
         environment: ${RELEASE_ENVIRONMENT}
         version: ${RELEASE_VERSION}
     spec:
-      initContainers:
-        - name: permissions
-          image: $IMAGE
-          imagePullPolicy: IfNotPresent
-          command:
-            - sh
-            - -c
-            - "cp /etc/cr-root-owned/tls.* /etc/cockroachdb-certs; chmod 600 /etc/cockroachdb-certs/tls.*"
-          volumeMounts:
-            - mountPath: "/etc/cr-root-owned"
-              name: cockroachdb-certs
-            - mountPath: "/etc/cockroachdb-certs"
-              name: cockroach-credentials
       containers:
         - name: ${APP_NAME}-app-${RELEASE_ENVIRONMENT}
           image: $IMAGE
@@ -45,6 +32,26 @@ spec:
           env:
             - name: NODE_ENV
               value: ${RELEASE_ENVIRONMENT}
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: devin-dashboard
+                  key: PGDATABASE
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: devin-dashboard
+                  key: PGHOST
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: devin-dashboard
+                  key: PGPASSWORD
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: devin-dashboard
+                  key: PGUSER
           ports:
             - containerPort: 3000
               name: http
@@ -55,14 +62,3 @@ spec:
             requests:
               cpu: ${RESOURCES_REQUESTS_CPU}
               memory: ${RESOURCES_REQUESTS_MEM}
-          volumeMounts:
-            - mountPath: "/etc/cockroachdb-certs"
-              name: cockroach-credentials
-              readOnly: true
-      volumes:
-        - name: cockroachdb-certs
-          secret:
-            secretName: cockroachdb
-        - name: cockroach-credentials
-          emptyDir: {}
-
