@@ -127,8 +127,8 @@ if [ "${PUSHGATEWAY_ENABLED:-}" == "true" ]; then
 fi
 
 # Handle environment-specific secrets for wip1
-if [ "${K8S_ENV:-}" == "mgmt1" ]; then
-  for file in $(find kubernetes/secrets/mgmt1 -type f -name '*.yaml'); do
+if [ "${K8S_ENV:-}" == "k8spod2" ]; then
+  for file in $(find kubernetes/secrets/k8spod2 -type f -name '*.yaml'); do
     envsubst < "$file"
   done
 fi
