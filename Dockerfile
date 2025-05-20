@@ -7,5 +7,5 @@ RUN npm install
 RUN npm run build
 ENV PORT 3000
 EXPOSE 3000
-CMD ["sh", "-c", "npm run db:push && node dist/index.js"]
+CMD ["sh", "-c", "npm run db:push && npm run start"]
 
