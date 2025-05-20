@@ -1,7 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { defineConfig } from "drizzle-kit";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL, ensure the database is provisioned");
+if (!process.env.PGHOST) {
+  throw new Error("PGHOST, ensure the database is provisioned");
 }
 
 export default defineConfig({
@@ -9,6 +11,11 @@ export default defineConfig({
   schema: "./shared/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    host: process.env.PGHOST,
+    port: parseInt(process.env.PGPORT || '5432'),
+    database: process.env.PGDATABASE!,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    ssl: { rejectUnauthorized: false }
   },
 });

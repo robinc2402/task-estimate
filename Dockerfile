@@ -6,5 +6,5 @@ COPY . /app/
 RUN npm install
 ENV PORT 3000
 EXPOSE 3000
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "npm run db:push && node dist/index.js"]
 
