@@ -2,14 +2,14 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer } from "ws";
 import { storage } from "./storage";
-import { 
-  taskPredictionSchema, 
-  taskFeedbackSchema, 
+import {
+  taskPredictionSchema,
+  taskFeedbackSchema,
   taskVoteSchema,
   taskFinalizeSchema,
   sessionSchema,
   taskImportSchema,
-  TShirtSize, 
+  TShirtSize,
   pointsMapping,
   type InsertTask,
   type TaskImport,
@@ -18,15 +18,18 @@ import {
 } from "@shared/schema";
 import { ZodError } from "zod";
 import { parse } from "csv-parse/sync";
-
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Simple ML model to predict task size based on features
 function predictTaskSize(title: string, description: string) {
   // Combine title and description for feature extraction
   const text = `${title} ${description}`.toLowerCase();
-  
+
   // Count words as a simple complexity metric
   const wordCount = text.split(/\s+/).length;
-  
+
   // Look for complexity keywords
   const complexityKeywords = [
     'complex', 'difficult', 'challenging', 'intricate',
@@ -34,23 +37,23 @@ function predictTaskSize(title: string, description: string) {
     'implement', 'create', 'build', 'develop', 'integration',
     'database', 'api', 'performance', 'authentication', 'authorization'
   ];
-  
+
   // Count complexity indicators
   let complexityScore = 0;
   complexityKeywords.forEach(keyword => {
     if (text.includes(keyword)) complexityScore++;
   });
-  
+
   // Adjust based on description length (longer descriptions often indicate more complexity)
   let lengthFactor = Math.min(Math.floor(wordCount / 20), 3);
-  
+
   // Combined score
   const totalScore = complexityScore + lengthFactor;
-  
+
   // Determine T-shirt size based on score
   let size: keyof typeof TShirtSize;
   let confidence: number;
-  
+
   if (totalScore <= 1) {
     size = 'XS';
     confidence = 70 + Math.floor(Math.random() * 15);
@@ -70,12 +73,12 @@ function predictTaskSize(title: string, description: string) {
     size = 'XXL';
     confidence = 65 + Math.floor(Math.random() * 25);
   }
-  
+
   // Find similar tasks from history
-  return { 
-    size, 
+  return {
+    size,
     points: pointsMapping[size],
-    confidence 
+    confidence
   };
 }
 
@@ -83,20 +86,20 @@ function predictTaskSize(title: string, description: string) {
 async function findSimilarTasks(title: string, description: string, predictedSize: keyof typeof TShirtSize) {
   const text = `${title} ${description}`.toLowerCase();
   const allTasks = await storage.getAllTasks();
-  
+
   // Simple similarity algorithm
   return allTasks
     .map(task => {
       const taskText = `${task.title} ${task.description}`.toLowerCase();
-      
+
       // Calculate word overlap as simple similarity metric
       const textWords = new Set(text.split(/\s+/));
       const taskWords = new Set(taskText.split(/\s+/));
       const overlap = [...textWords].filter(word => taskWords.has(word)).length;
-      
-      return { 
-        task, 
-        similarity: overlap 
+
+      return {
+        task,
+        similarity: overlap
       };
     })
     .filter(item => item.similarity > 1) // Filter for minimum similarity
@@ -119,7 +122,7 @@ function parseCSV(csvData: string): TaskImport[] {
       skip_empty_lines: true,
       trim: true
     });
-    
+
     // Validate and transform records
     return records.map((record: any) => {
       return taskImportSchema.parse({
@@ -140,13 +143,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate request body
       const validatedData = taskPredictionSchema.parse(req.body);
       const { title, description } = validatedData;
-      
+
       // Predict task size
       const prediction = predictTaskSize(title, description);
-      
+
       // Find similar tasks
       const similarTasks = await findSimilarTasks(title, description, prediction.size);
-      
+
       res.json({
         title,
         description,
@@ -164,6 +167,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/test", (req, res) => {
+    const testFile = path.resolve(__dirname, "..", "dist", "public", "index.html");
+    console.log("Trying to serve file:", testFile);
+    res.sendFile(testFile);
+  });
   // API endpoint to save task
   app.post('/api/tasks', async (req: Request, res: Response) => {
     try {
@@ -176,7 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         similarTasks: req.body.similarTasks || [],
         feedback: null
       };
-      
+
       const task = await storage.createTask(taskData);
       res.status(201).json(task);
     } catch (error) {
@@ -208,18 +216,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/tasks/:id/feedback', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      const { actualSize } = taskFeedbackSchema.parse({ 
-        id: parseInt(id), 
-        actualSize: req.body.actualSize 
+      const { actualSize } = taskFeedbackSchema.parse({
+        id: parseInt(id),
+        actualSize: req.body.actualSize
       });
-      
+
       const feedback = `Predicted: ${req.body.predictedSize}, Actual: ${actualSize}`;
       const task = await storage.updateTaskFeedback(parseInt(id), feedback);
-      
+
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
       }
-      
+
       res.json(task);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -235,17 +243,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { size } = req.body;
-      
+
       if (!Object.values(TShirtSize).includes(size)) {
         return res.status(400).json({ message: 'Invalid size' });
       }
-      
+
       const task = await storage.updateTaskSize(parseInt(id), size);
-      
+
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
       }
-      
+
       res.json(task);
     } catch (error) {
       res.status(500).json({ message: 'Failed to update task size' });
@@ -295,21 +303,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { csvData } = req.body;
-      
+
       if (!csvData) {
         return res.status(400).json({ message: 'CSV data is required' });
       }
-      
+
       // Parse CSV to array of task objects
       const taskImports = parseCSV(csvData);
-      
+
       // Generate predictions for each task
       const insertTasks: InsertTask[] = await Promise.all(
         taskImports.map(async (taskImport) => {
           const { title, description } = taskImport;
           const prediction = predictTaskSize(title, description);
           const similarTasks = await findSimilarTasks(title, description, prediction.size);
-          
+
           return {
             title,
             description,
@@ -321,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
         })
       );
-      
+
       // Create the tasks in bulk
       const tasks = await storage.createBulkTasks(insertTasks, id);
       res.status(201).json(tasks);
@@ -344,13 +352,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userName: req.body.userName,
         size: req.body.size
       });
-      
+
       const task = await storage.addTaskVote(vote);
-      
+
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
       }
-      
+
       res.json(task);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -369,13 +377,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         taskId: parseInt(id),
         finalSize: req.body.finalSize
       });
-      
+
       const task = await storage.finalizeTask(parseInt(id), finalSize);
-      
+
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
       }
-      
+
       res.json(task);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -388,21 +396,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create HTTP server
   const httpServer = createServer(app);
-  
+
   // Add WebSocket server for real-time updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-  
+
   wss.on('connection', (ws) => {
     console.log('WebSocket client connected');
-    
+
     // Send initial message
     ws.send(JSON.stringify({ type: 'connection', message: 'Connected to estimation server' }));
-    
+
     ws.on('message', (message) => {
       try {
         const data = JSON.parse(message.toString());
         console.log('Received message:', data);
-        
+
         // Broadcast message to all clients
         wss.clients.forEach((client) => {
           if (client.readyState === ws.OPEN) {
@@ -416,11 +424,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Error parsing message:', err);
       }
     });
-    
+
     ws.on('close', () => {
       console.log('WebSocket client disconnected');
     });
   });
-  
+
   return httpServer;
 }
