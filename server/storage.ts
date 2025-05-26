@@ -357,19 +357,49 @@ export class MemStorage implements IStorage {
     private seedInitialUsers(): void {
         const initialUsers: Omit<User, 'id'>[] = [
             {
-                username: "jsmith",
-                password: "password123", // In a real app, this would be hashed
-                displayName: "John Smith"
+                username: "robinc",
+                password: "robinc", // In a real app, this would be hashed
+                displayName: "Robin Chalia"
             },
             {
-                username: "agarcia",
-                password: "password123",
-                displayName: "Ana Garcia"
+                username: "deepakr",
+                password: "deepakr",
+                displayName: "Deepak ji"
             },
             {
-                username: "mwilson",
-                password: "password123",
-                displayName: "Mike Wilson"
+                username: "ankitt",
+                password: "ankitt",
+                displayName: "Ankit Tiwari"
+            },
+            {
+                username: "akshatt",
+                password: "akshatt",
+                displayName: "Akshat Trigunait"
+            },
+            {
+                username: "dineshk",
+                password: "dineshk",
+                displayName: "Dinesh Kashera"
+            },
+            {
+                username: "prateekj",
+                password: "prateekj",
+                displayName: "Prateek Jain"
+            },
+            {
+                username: "ankits",
+                password: "ankits",
+                displayName: "Ankit Soni"
+            },
+            {
+                username: "amitt",
+                password: "amitt",
+                displayName: "Amit Tiwary"
+            },
+            {
+                username: "mathieu",
+                password: "mathieu",
+                displayName: "Mathieu Lamiot"
             }
         ];
 
