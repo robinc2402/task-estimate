@@ -73,6 +73,11 @@ async function main() {
           username: "mathieu",
           password: "mathieu",
           displayName: "Mathieu Lamiot"
+        },
+        {
+          username: "sebs",
+          password: "sebs",
+          displayName: "Sebastian Singh"
         }
       ]);
     }
