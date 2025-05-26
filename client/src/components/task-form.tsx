@@ -27,7 +27,6 @@ interface TaskFormProps {
 export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: TaskFormProps) {
   const { toast } = useToast();
   const [wordCount, setWordCount] = useState(0);
-  
   const form = useForm<TaskPrediction>({
     resolver: zodResolver(
       taskPredictionSchema.extend({
@@ -40,15 +39,12 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
       description: "",
     },
   });
-  
   const updateWordCount = (text: string) => {
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
     setWordCount(words);
   };
-  
   const onSubmit = async (data: TaskPrediction) => {
     setIsPredicting(true);
-    
     try {
       const response = await apiRequest("POST", "/api/tasks/predict", data);
       const prediction = await response.json();
@@ -63,11 +59,9 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
       setIsPredicting(false);
     }
   };
-  
   return (
     <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 fade-in animate-in fade-in duration-300">
       <h2 className="text-xl font-semibold mb-4 text-slate-900">New Task Estimation</h2>
-      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
@@ -77,7 +71,7 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
               <FormItem className="space-y-1">
                 <FormLabel className="text-sm font-medium text-slate-700">Task Title</FormLabel>
                 <FormControl>
-                  <Input 
+                  <Input
                     placeholder="Enter task title"
                     className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     {...field}
@@ -87,7 +81,6 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
               </FormItem>
             )}
           />
-          
           <FormField
             control={form.control}
             name="description"
@@ -95,7 +88,7 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
               <FormItem className="space-y-1">
                 <FormLabel className="text-sm font-medium text-slate-700">Task Description</FormLabel>
                 <FormControl>
-                  <Textarea 
+                  <Textarea
                     placeholder="Describe the task in detail..."
                     className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     rows={4}
@@ -113,17 +106,15 @@ export default function TaskForm({ onPredict, isPredicting, setIsPredicting }: T
               </FormItem>
             )}
           />
-          
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center pt-2 space-y-3 sm:space-y-0">
             <div className="text-sm text-slate-600">
               <span>Words: </span>
               <span className="font-medium">{wordCount}</span>
               <span className="text-slate-400 ml-1">(more details improve accuracy)</span>
             </div>
-            
-            <Button 
+            <Button
               type="submit"
-              className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-md shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="block visible bg-blue-500"
               disabled={isPredicting}
             >
               {isPredicting ? (

@@ -5,7 +5,6 @@ metadata:
   namespace: $K8S_NAMESPACE
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    kubernetes.io/ingress.class: ${INGRESS_CLASS}
     nginx.ingress.kubernetes.io/proxy-body-size: 20g
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
@@ -14,6 +13,7 @@ metadata:
     environment: ${RELEASE_ENVIRONMENT}
     version: ${RELEASE_VERSION}
 spec:
+  ingressClassName: ${INGRESS_CLASS}
   rules:
     - host: $INGRESS_HOSTNAME
       http:
