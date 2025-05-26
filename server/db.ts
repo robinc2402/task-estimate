@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import dotenv from 'dotenv';
 dotenv.config({path: `.env.${process.env.NODE_ENV}`});
 import pg from 'pg';
 import {drizzle} from 'drizzle-orm/node-postgres';
