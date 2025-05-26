@@ -217,12 +217,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { actualSize } = taskFeedbackSchema.parse({
-        id: parseInt(id),
+        id: id,
         actualSize: req.body.actualSize
       });
 
       const feedback = `Predicted: ${req.body.predictedSize}, Actual: ${actualSize}`;
-      const task = await storage.updateTaskFeedback(parseInt(id), feedback);
+      const task = await storage.updateTaskFeedback(id, feedback);
 
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
