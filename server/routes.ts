@@ -388,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
     // Import tasks from CSV for a session
-    app.post('/api/sessions/:id/import', async (req: Request, res: Response) => {
+  app.post('/api/sessions/:id/import', async (req: Request, res: Response) => {
         try {
             const {id} = req.params;
             const {csvData} = req.body;
@@ -431,7 +431,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
     });
 
-  // Vote on a task size
+
+    // Vote on a task size
   app.post('/api/tasks/:id/vote', async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
