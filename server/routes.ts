@@ -242,12 +242,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
             const {id} = req.params;
             const {actualSize} = taskFeedbackSchema.parse({
-                id: parseInt(id),
+                id: id,
                 actualSize: req.body.actualSize
             });
 
             const feedback = `Predicted: ${req.body.predictedSize}, Actual: ${actualSize}`;
-            const task = await storage.updateTaskFeedback(parseInt(id), feedback);
+            const task = await storage.updateTaskFeedback(id, feedback);
 
             if (!task) {
                 return res.status(404).json({message: 'Task not found'});
@@ -273,7 +273,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid size' });
       }
 
-      const task = await storage.updateTaskSize(parseInt(id), size);
+      const task = await storage.updateTaskSize(id, size);
 
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
@@ -294,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return res.status(400).json({message: 'Invalid size'});
             }
 
-            const task = await storage.updateTaskSize(parseInt(id), size);
+            const task = await storage.updateTaskSize(id, size);
 
             if (!task) {
                 return res.status(404).json({message: 'Task not found'});
@@ -437,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const vote: TaskVote = taskVoteSchema.parse({
-        taskId: parseInt(id),
+        taskId: id,
         userId: req.body.userId,
         userName: req.body.userName,
         size: req.body.size
@@ -490,11 +490,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const { finalSize } = taskFinalizeSchema.parse({
-        taskId: parseInt(id),
+        taskId: id,
         finalSize: req.body.finalSize
       });
 
-      const task = await storage.finalizeTask(parseInt(id), finalSize);
+      const task = await storage.finalizeTask(id, finalSize);
 
       if (!task) {
         return res.status(404).json({ message: 'Task not found' });
