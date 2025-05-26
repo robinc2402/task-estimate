@@ -5,6 +5,7 @@ include:
   - component: ${CI_SERVER_HOST}/ci/docker/build@main
     inputs:
       image_name: wp-in/wordpress-task-sizer
+      tags: k8s-large
 
 stages:
   - build
@@ -34,4 +35,3 @@ deploy-production:
       when: manual
   environment:
     name: k8spod2
-
