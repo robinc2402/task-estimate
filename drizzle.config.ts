@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { defineConfig } from "drizzle-kit";
+import {defineConfig} from "drizzle-kit";
 
 if (!process.env.PGHOST) {
   throw new Error("PGHOST, ensure the database is provisioned");

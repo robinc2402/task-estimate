@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
+import dotenv from 'dotenv';
+dotenv.config({path: `.env.${process.env.NODE_ENV}`});
 import pg from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import {drizzle} from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-const { Pool } = pg;
+const {Pool} = pg;
 
 // Check for required environment variables
 let connectionConfig;
@@ -49,11 +51,11 @@ else if (process.env.PGHOST) {
   }
 
 } else {
-  throw new Error("No database connection details available. Set COCKROACHDB_URL, DATABASE_URL, or PostgreSQL environment variables.");
+    throw new Error("No database connection details available. Set COCKROACHDB_URL, DATABASE_URL, or PostgreSQL environment variables.");
 }
 
 
 export const pool = new Pool(connectionConfig);
-export const db = drizzle(pool, { schema });
+export const db = drizzle(pool, {schema});
 
 console.log("Database connection established");
