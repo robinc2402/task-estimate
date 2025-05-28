@@ -64,7 +64,17 @@ export const taskFeedbackSchema = z.object({
 // Task import schema for CSV uploads
 export const taskImportSchema = z.object({
     title: z.string().min(1, "Title is required"),
-    description: z.string().min(1, "Description is required"),
+    description: z.string().optional().default(""),
+});
+
+export const jiraImportSchema = z.object({
+    projectKey: z.string().min(1, "Project key is required"),
+    maxResults: z.number().min(1).max(100).default(50),
+});
+
+export const jiraJqlImportSchema = z.object({
+    jql: z.string().min(1, "JQL query is required"),
+    maxResults: z.number().min(1).max(100).default(50),
 });
 
 // Task voting schema

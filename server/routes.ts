@@ -9,6 +9,8 @@ import {
   taskFinalizeSchema,
   sessionSchema,
   taskImportSchema,
+  jiraImportSchema,
+  jiraJqlImportSchema,
   TShirtSize,
   pointsMapping,
   type InsertTask,
@@ -23,6 +25,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 // Simple ML model to predict task size based on features
+import { JiraService } from "./jira-service";
+
 function predictTaskSize(title: string, description: string) {
   // Combine title and description for feature extraction
   const text = `${title} ${description}`.toLowerCase();
@@ -343,6 +347,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
             res.status(500).json({message: 'Failed to get session tasks'});
         }
     });
+
+  // Import tasks from Jira project for a session
+  app.post('/api/sessions/:id/import/jira', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { projectKey, maxResults } = jiraImportSchema.parse(req.body);
+
+      // Get Jira configuration from environment variables
+      const jiraBaseUrl = process.env.JIRA_BASE_URL || 'https://group-one.atlassian.net';
+      const jiraEmail = process.env.JIRA_EMAIL;
+      const jiraApiToken = process.env.JIRA_API_TOKEN;
+
+      if (!jiraEmail || !jiraApiToken) {
+        return res.status(400).json({ 
+          message: 'Jira credentials not configured. Please set JIRA_EMAIL and JIRA_API_TOKEN environment variables.' 
+        });
+      }
+
+      const jiraService = new JiraService({
+        baseUrl: jiraBaseUrl,
+        email: jiraEmail,
+        apiToken: jiraApiToken
+      });
+
+      // Fetch tasks from Jira
+      const taskImports = await jiraService.fetchIssuesFromProject(projectKey, maxResults);
+
+      if (taskImports.length === 0) {
+        return res.status(404).json({ message: 'No issues found in the specified project' });
+      }
+
+      // Generate predictions for each task
+      const insertTasks: InsertTask[] = await Promise.all(
+        taskImports.map(async (taskImport) => {
+          const { title, description } = taskImport;
+          const prediction = predictTaskSize(title, description);
+          const similarTasks = await findSimilarTasks(title, description, prediction.size);
+
+          return {
+            title,
+            description,
+            size: prediction.size,
+            points: prediction.points,
+            confidence: prediction.confidence,
+            similarTasks,
+            feedback: null
+          };
+        })
+      );
+
+      // Create the tasks in bulk
+      const tasks = await storage.createBulkTasks(insertTasks, id);
+      res.status(201).json(tasks);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: 'Failed to import tasks from Jira' });
+      }
+    }
+  });
+
+  // Import tasks from Jira using JQL for a session
+  app.post('/api/sessions/:id/import/jira/jql', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { jql, maxResults } = jiraJqlImportSchema.parse(req.body);
+
+      // Get Jira configuration from environment variables
+      const jiraBaseUrl = process.env.JIRA_BASE_URL || 'https://group-one.atlassian.net';
+      const jiraEmail = process.env.JIRA_EMAIL;
+      const jiraApiToken = process.env.JIRA_API_TOKEN;
+
+      if (!jiraEmail || !jiraApiToken) {
+        return res.status(400).json({ 
+          message: 'Jira credentials not configured. Please set JIRA_EMAIL and JIRA_API_TOKEN environment variables.' 
+        });
+      }
+
+      const jiraService = new JiraService({
+        baseUrl: jiraBaseUrl,
+        email: jiraEmail,
+        apiToken: jiraApiToken
+      });
+
+      // Fetch tasks from Jira using JQL
+      const taskImports = await jiraService.fetchIssuesFromJQL(jql, maxResults);
+
+      if (taskImports.length === 0) {
+        return res.status(404).json({ message: 'No issues found for the specified JQL query' });
+      }
+
+      // Generate predictions for each task
+      const insertTasks: InsertTask[] = await Promise.all(
+        taskImports.map(async (taskImport) => {
+          const { title, description } = taskImport;
+          const prediction = predictTaskSize(title, description);
+          const similarTasks = await findSimilarTasks(title, description, prediction.size);
+
+          return {
+            title,
+            description,
+            size: prediction.size,
+            points: prediction.points,
+            confidence: prediction.confidence,
+            similarTasks,
+            feedback: null
+          };
+        })
+      );
+
+      // Create the tasks in bulk
+      const tasks = await storage.createBulkTasks(insertTasks, id);
+      res.status(201).json(tasks);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: 'Failed to import tasks from Jira using JQL' });
+      }
+    }
+  });
+
+  // Get available Jira projects
+  app.get('/api/jira/projects', async (_req: Request, res: Response) => {
+    try {
+      // Get Jira configuration from environment variables
+      const jiraBaseUrl = process.env.JIRA_BASE_URL || 'https://group-one.atlassian.net';
+      const jiraEmail = process.env.JIRA_EMAIL;
+      const jiraApiToken = process.env.JIRA_API_TOKEN;
+
+      if (!jiraEmail || !jiraApiToken) {
+        return res.status(400).json({ 
+          message: 'Jira credentials not configured. Please set JIRA_EMAIL and JIRA_API_TOKEN environment variables.' 
+        });
+      }
+
+      const jiraService = new JiraService({
+        baseUrl: jiraBaseUrl,
+        email: jiraEmail,
+        apiToken: jiraApiToken
+      });
+
+      const projects = await jiraService.getProjects();
+      res.json(projects);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: 'Failed to fetch Jira projects' });
+      }
+    }
+  });
 
   // Import tasks from CSV for a session
   app.post('/api/sessions/:id/import', async (req: Request, res: Response) => {

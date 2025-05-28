@@ -2,7 +2,8 @@ import {useState} from "react";
 import AppHeader from "@/components/app-header";
 import AppFooter from "@/components/app-footer";
 import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardHeader, CardTitle, CardDescription} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeamMembers from "@/components/team-members";
 import CsvImportForm from "@/components/csv-import-form";
 import CollaborativeTaskList from "@/components/collaborative-task-list";
@@ -175,10 +176,7 @@ export default function CollaborativeEstimation() {
                                         </Button>
                                     </CardHeader>
                                     <CardContent>
-                                        <CsvImportForm
-                                            sessionId={sessionId}
-                                            onTasksImported={handleTasksImported}
-                                        />
+                                        
                                     </CardContent>
                                 </Card>
 
